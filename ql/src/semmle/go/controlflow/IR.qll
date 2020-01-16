@@ -1024,7 +1024,7 @@ module IR {
    * An instruction initializing a parameter to the corresponding argument.
    */
   class InitParameterInstruction extends WriteInstruction, MkParameterInit {
-    ParameterOrReceiver parm;
+    Parameter parm;
 
     InitParameterInstruction() { this = MkParameterInit(parm) }
 
@@ -1045,7 +1045,7 @@ module IR {
    * An instruction reading the value of a function argument.
    */
   class ReadArgumentInstruction extends Instruction, MkArgumentNode {
-    ParameterOrReceiver parm;
+    Parameter parm;
 
     ReadArgumentInstruction() { this = MkArgumentNode(parm) }
 

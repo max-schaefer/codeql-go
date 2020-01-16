@@ -353,18 +353,6 @@ class MethodCallNode extends CallNode {
   override MethodDecl getACallee() { result = super.getACallee() }
 }
 
-/** A representation of a receiver initialization. */
-class ReceiverNode extends SsaNode {
-  override SsaExplicitDefinition ssa;
-  ReceiverVariable recv;
-
-  ReceiverNode() { ssa.getInstruction() = IR::initRecvInstruction(recv) }
-
-  ReceiverVariable asReceiverVariable() { result = recv }
-
-  predicate isReceiverOf(FuncDef fd) { recv = fd.(MethodDecl).getReceiver() }
-}
-
 /** A representation of a parameter initialization. */
 class ParameterNode extends SsaNode {
   override SsaExplicitDefinition ssa;
@@ -374,9 +362,17 @@ class ParameterNode extends SsaNode {
 
   override Parameter asParameter() { result = parm }
 
-  predicate isParameterOf(FuncDef fd, int i) { parm = fd.getParameter(i) }
+  predicate isParameterOf(FuncDef fd, int i) { parm.isParameterOf(fd, i) }
 }
 
+/** A representation of a receiver initialization. */
+class ReceiverNode extends ParameterNode {
+  override ReceiverVariable parm;
+
+  ReceiverVariable asReceiverVariable() { result = parm }
+
+  predicate isReceiverOf(MethodDecl m) { parm.isReceiverOf(m) }
+}
 /**
  * A node associated with an object after an operation that might have
  * changed its state.
