@@ -37,6 +37,11 @@ edges
 | main.go:60:3:60:25 | selection of Category : slice type | main.go:61:11:61:11 | q |
 | main.go:60:4:60:15 | star expression [Category] : slice type | main.go:60:3:60:25 | selection of Category : slice type |
 | main.go:60:5:60:15 | RequestData [pointer, Category] | main.go:60:4:60:15 | star expression [Category] : slice type |
+| main.go:65:6:65:13 | definition of category [pointer] : string | main.go:69:4:69:11 | category [pointer] : string |
+| main.go:66:14:66:20 | selection of URL : pointer type | main.go:66:14:66:43 | index expression : string |
+| main.go:66:14:66:43 | index expression : string | main.go:65:6:65:13 | definition of category [pointer] : string |
+| main.go:69:3:69:11 | star expression : string | main.go:70:11:70:11 | q |
+| main.go:69:4:69:11 | category [pointer] : string | main.go:69:3:69:11 | star expression : string |
 nodes
 | SqlInjection.go:11:3:11:9 | selection of URL : pointer type | semmle.label | selection of URL : pointer type |
 | SqlInjection.go:12:11:12:11 | q | semmle.label | q |
@@ -81,6 +86,12 @@ nodes
 | main.go:60:4:60:15 | star expression [Category] : slice type | semmle.label | star expression [Category] : slice type |
 | main.go:60:5:60:15 | RequestData [pointer, Category] | semmle.label | RequestData [pointer, Category] |
 | main.go:61:11:61:11 | q | semmle.label | q |
+| main.go:65:6:65:13 | definition of category [pointer] : string | semmle.label | definition of category [pointer] : string |
+| main.go:66:14:66:20 | selection of URL : pointer type | semmle.label | selection of URL : pointer type |
+| main.go:66:14:66:43 | index expression : string | semmle.label | index expression : string |
+| main.go:69:3:69:11 | star expression : string | semmle.label | star expression : string |
+| main.go:69:4:69:11 | category [pointer] : string | semmle.label | category [pointer] : string |
+| main.go:70:11:70:11 | q | semmle.label | q |
 #select
 | SqlInjection.go:12:11:12:11 | q | SqlInjection.go:11:3:11:9 | selection of URL : pointer type | SqlInjection.go:12:11:12:11 | q | This query depends on $@. | SqlInjection.go:11:3:11:9 | selection of URL | a user-provided value |
 | main.go:10:11:10:28 | index expression | main.go:10:11:10:16 | selection of Form : Values | main.go:10:11:10:28 | index expression | This query depends on $@. | main.go:10:11:10:16 | selection of Form | a user-provided value |
@@ -90,3 +101,4 @@ nodes
 | main.go:43:11:43:11 | q | main.go:39:25:39:31 | selection of URL : pointer type | main.go:43:11:43:11 | q | This query depends on $@. | main.go:39:25:39:31 | selection of URL | a user-provided value |
 | main.go:52:11:52:11 | q | main.go:48:28:48:34 | selection of URL : pointer type | main.go:52:11:52:11 | q | This query depends on $@. | main.go:48:28:48:34 | selection of URL | a user-provided value |
 | main.go:61:11:61:11 | q | main.go:57:28:57:34 | selection of URL : pointer type | main.go:61:11:61:11 | q | This query depends on $@. | main.go:57:28:57:34 | selection of URL | a user-provided value |
+| main.go:70:11:70:11 | q | main.go:66:14:66:20 | selection of URL : pointer type | main.go:70:11:70:11 | q | This query depends on $@. | main.go:66:14:66:20 | selection of URL | a user-provided value |

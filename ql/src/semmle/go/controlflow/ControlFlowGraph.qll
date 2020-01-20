@@ -139,6 +139,14 @@ module ControlFlow {
         self.getRhs() = rhs.asInstruction()
       )
     }
+
+    /** Holds if this node sets the location pointed to by `base` to `rhs`. */
+    predicate writesContents(DataFlow::Node base, DataFlow::Node rhs) {
+      exists(IR::PointerTarget trg | trg = self.getLhs() |
+        trg.getBase() = base.asInstruction() and
+        self.getRhs() = rhs.asInstruction()
+      )
+    }
   }
 
   /**

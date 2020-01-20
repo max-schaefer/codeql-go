@@ -401,6 +401,8 @@ class PostUpdateNode extends Node {
         or
         preupd = base.(PointerDereferenceNode).getOperand()
       )
+      or
+      any(Write w).writesContents(preupd, _)
     ) and
     (
       preupd = this.(SsaNode).getAUse()

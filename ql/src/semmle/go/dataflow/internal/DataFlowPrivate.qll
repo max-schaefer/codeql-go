@@ -161,6 +161,11 @@ predicate storeStep(Node node1, Content c, PostUpdateNode node2) {
     c = TPointerContent(node2.getType())
   )
   or
+  exists(Write w |
+    w.writesContents(node2.getPreUpdateNode(), node1) and
+    c = TPointerContent(node2.getType())
+  )
+  or
   node1 = node2.(AddressOperationNode).getOperand() and
   c = TPointerContent(node2.getType())
 }
