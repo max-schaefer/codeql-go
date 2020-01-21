@@ -152,13 +152,24 @@ predicate storeStep(Node node1, Content c, PostUpdateNode node2) {
   // a write `(*p).f = rhs` is modelled as two store steps: `rhs` is flows into field `f` of `(*p)`,
   // which in turn flows into the pointer content of `p`
   exists(Write w, Field f, DataFlow::Node base, DataFlow::Node rhs | w.writesField(base, f, rhs) |
+    // node2.f = node1
     node1 = rhs and
     node2.getPreUpdateNode() = base and
     c = TFieldContent(f)
     or
+    // (*node2).f = rhs
+    // where node1 is (*node2)
     node1 = base and
     node2.getPreUpdateNode() = node1.(PointerDereferenceNode).getOperand() and
     c = TPointerContent(node2.getType())
+    or
+    // (*node2).f = node1
+    // this is semantically redundant, but allows us to model more setter summaries (which are
+    // currently restricted to one level of content: we can only model a setter for a field on
+    // one of its parameters, not a setter for a field on the content of one of its parameters)
+    node1 = rhs and
+    node2.getPreUpdateNode() = base.(PointerDereferenceNode).getOperand() and
+    c = TFieldContent(f)
   )
   or
   node1 = node2.(AddressOperationNode).getOperand() and
@@ -171,12 +182,22 @@ predicate storeStep(Node node1, Content c, PostUpdateNode node2) {
  * `node2`.
  */
 predicate readStep(Node node1, Content f, Node node2) {
+  // node2 is *node1
   node1 = node2.(PointerDereferenceNode).getOperand() and
   f = TPointerContent(node1.getType())
   or
   exists(FieldReadNode read |
+    // node2 is node1.f
     node2 = read and
     node1 = read.getBase() and
+    f = TFieldContent(read.getField())
+    or
+    // node2 is (*node1).f
+    // this is semantically redundant, but allows us to model more getter summaries (which are
+    // currently restricted to one level of content: we can only model a getter for a field on
+    // one of its parameters, not a getter for a field on the content of one of its parameters)
+    node2 = read and
+    node1 = read.getBase().(PointerDereferenceNode).getOperand() and
     f = TFieldContent(read.getField())
   )
 }
