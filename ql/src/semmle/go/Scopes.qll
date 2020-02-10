@@ -93,7 +93,7 @@ class Entity extends @object {
   string getName() { objects(this, _, result) }
 
   /** Gets the package in which this entity is declared, if any. */
-  Package getPackage() { result.getScope() = this.getScope() }
+  Package getPackage() { result.getScope() = this.getScope().getOuterScope*() }
 
   /** Holds if this entity is declared in a package with path `pkg` and has the given `name`. */
   predicate hasQualifiedName(string pkg, string name) {
