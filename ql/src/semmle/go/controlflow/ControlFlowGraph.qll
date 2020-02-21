@@ -70,7 +70,7 @@ module ControlFlow {
     }
 
     /** Gets the innermost function or file to which this node belongs. */
-    Root getRoot() { none() }
+    cached Root getRoot() { none() }
 
     /** Gets the file to which this node belongs. */
     File getFile() { hasLocationInfo(result.getAbsolutePath(), _, _, _, _) }
