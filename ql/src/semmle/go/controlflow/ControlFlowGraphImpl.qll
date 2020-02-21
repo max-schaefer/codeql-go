@@ -1179,12 +1179,21 @@ module CFG {
   private class LoopTree extends ControlFlowTree, LoopStmt {
     BranchTarget getLabel() { result = BranchTarget::of(this) }
 
+    private predicate breaksOutOfThis(Completion cmpl) {
+      cmpl = Break(getLabel())
+    }
+
+    pragma[noinline]
+    private predicate continuesThis(Completion cmpl) {
+      cmpl = Continue(getLabel())
+    }
+
     override predicate lastNode(ControlFlow::Node last, Completion cmpl) {
       exists(Completion inner | lastNode(getBody(), last, inner) and not inner.isNormal() |
-        if inner = Break(getLabel())
+        if breaksOutOfThis(inner)
         then cmpl = Done()
         else
-          if inner = Continue(getLabel())
+          if continuesThis(inner)
           then none()
           else cmpl = inner
       )
@@ -1541,8 +1550,6 @@ module CFG {
   }
 
   private class SelectStmtTree extends ControlFlowTree, SelectStmt {
-    private BranchTarget getLabel() { result = BranchTarget::of(this) }
-
     override predicate firstNode(ControlFlow::Node first) {
       firstNode(getNonDefaultCommClause(0), first)
       or
@@ -1550,9 +1557,13 @@ module CFG {
       first = MkSelectNode(this)
     }
 
+    private predicate breaksOutOfThis(Completion cmpl) {
+      cmpl = Break(BranchTarget::of(this))
+    }
+
     override predicate lastNode(ControlFlow::Node last, Completion cmpl) {
       exists(Completion inner | lastNode(getACommClause(), last, inner) |
-        if inner = Break(getLabel()) then cmpl = Done() else cmpl = inner
+        if breaksOutOfThis(inner) then cmpl = Done() else cmpl = inner
       )
     }
 
@@ -1753,6 +1764,10 @@ module CFG {
       )
     }
 
+    private predicate breaksOutOfThis(Completion cmpl) {
+      cmpl = Break(BranchTarget::of(this))
+    }
+
     override predicate lastNode(ControlFlow::Node last, Completion cmpl) {
       lastNode(getInit(), last, cmpl) and
       not cmpl.isNormal()
@@ -1784,7 +1799,7 @@ module CFG {
         inner.isNormal() and
         cmpl = inner
         or
-        if inner = Break(BranchTarget::of(this))
+        if breaksOutOfThis(inner)
         then cmpl = Done()
         else (
           not inner.isNormal() and inner != Fallthrough() and cmpl = inner

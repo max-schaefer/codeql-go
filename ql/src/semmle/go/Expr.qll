@@ -1089,10 +1089,14 @@ class ConstantName extends ValueName {
     target = Builtin::nil()
     or
     exists(DeclaredConstant c | c = target |
-      not c.getSpec().getFile().hasBuildConstraints() and
+      not inFileWithBuildConstraints(c) and
       c.getInit().isPlatformIndependentConstant()
     )
   }
+}
+
+private predicate inFileWithBuildConstraints(DeclaredConstant c) {
+  c.getSpec().getFile().hasBuildConstraints()
 }
 
 /** A name referring to a variable. */
