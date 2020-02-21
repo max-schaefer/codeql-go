@@ -75,9 +75,16 @@ private predicate isPureFn(Function f) {
 }
 
 private predicate isPureStmt(Stmt s) {
-  exists(BlockStmt blk | blk = s | forall(Stmt ch | ch = blk.getAStmt() | isPureStmt(ch)))
+  allStmtsPure(s, 0)
   or
   isPureExpr(s.(ReturnStmt).getExpr())
+}
+
+private predicate allStmtsPure(BlockStmt blk, int start) {
+  start = blk.getNumStmt()
+  or
+  isPureStmt(blk.getStmt(start)) and
+  allStmtsPure(blk, start+1)
 }
 
 private predicate isPureExpr(Expr e) {
@@ -93,8 +100,15 @@ private predicate isPureExpr(Expr e) {
   or
   exists(CallExpr ce | e = ce |
     isPureFn(ce.getTarget()) and
-    forall(Expr arg | arg = ce.getAnArgument() | isPureExpr(arg))
+    allArgsPure(ce, 0)
   )
+}
+
+private predicate allArgsPure(CallExpr ce, int start) {
+  start = ce.getNumArgument()
+  or
+  isPureExpr(ce.getArgument(start)) and
+  allArgsPure(ce, start+1)
 }
 
 /**
