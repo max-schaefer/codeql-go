@@ -18,9 +18,8 @@ import DataFlow::PathGraph
  * Holds if `pattern` is a regular expression pattern for URLs with a host matched by `hostPart`,
  * and `pattern` contains a subtle mistake that allows it to match unexpected hosts.
  */
-bindingset[pattern]
-predicate isIncompleteHostNameRegexpPattern(string pattern, string hostPart) {
-  hostPart = pattern
+predicate isIncompleteHostNameRegexpPattern(Expr pattern, string hostPart) {
+  hostPart = pattern.getStringValue()
         .regexpCapture("(?i).*" +
             // an unescaped single `.`
             "(?<!\\\\)[.]" +
@@ -35,12 +34,12 @@ class Config extends DataFlow::Configuration {
   predicate isSource(DataFlow::Node source, string hostPart) {
     exists(Expr e |
       e = source.asExpr() and
-      isIncompleteHostNameRegexpPattern(e.getStringValue(), hostPart)
+      isIncompleteHostNameRegexpPattern(e, hostPart)
     |
       e instanceof StringLit
       or
       e instanceof AddExpr and
-      not isIncompleteHostNameRegexpPattern(e.(AddExpr).getAnOperand().getStringValue(), _)
+      not isIncompleteHostNameRegexpPattern(e.(AddExpr).getAnOperand(), _)
     )
   }
 
