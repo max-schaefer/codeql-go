@@ -560,9 +560,10 @@ GVN globalValueNumber(DataFlow::Node nd) {
   not analyzableExpr(nd) and
   result = MkUnanalyzable(nd)
   or
-  exists(DataFlow::SsaNode ssa |
+  exists(DataFlow::SsaNode ssa, Variable srcVar |
     nd = ssa.getAUse() and
-    not incompleteSsa(ssa.getSourceVariable()) and
+    srcVar = ssa.getSourceVariable() and
+    not incompleteSsa(srcVar) and
     result = globalValueNumber(ssa)
   )
   or
