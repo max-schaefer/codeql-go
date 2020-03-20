@@ -48,6 +48,101 @@ private FuncDecl getConcreteTarget(DataFlow::CallNode call) {
   )
 }
 
+private predicate isLiveFunction(FuncDef fn) {
+  not fn instanceof MethodDecl and
+  (fn.getName() = "main" or fn.getName() = "init")
+  or
+  fn instanceof FuncLit
+  or
+  exists(DataFlow::Node ref |
+    ref = fn.(FuncDecl).getFunction().getARead() and
+    not ref = any(DataFlow::CallNode cn).getCalleeNode()
+  )
+  or
+  fn.getAParameter().getType().(PointerType).getBaseType().hasQualifiedName("testing", "T")
+  or
+  exists(DataFlow::CallNode c |
+    c.getTarget().(DeclaredFunction).getFuncDecl() = fn and
+    isLiveRoot(c.getRoot())
+  )
+  or
+  exists(DataFlow::CallNode c |
+    c.getACallee() = fn and
+    isLiveRoot(c.getRoot())
+  |
+    not fn instanceof MethodDecl
+    or
+    isLiveType(fn.(MethodDecl).getReceiverType())
+  )
+  or
+  fn.getName().regexpMatch("[A-Z].*") and
+  (
+    not fn instanceof MethodDecl
+    or
+    fn.(MethodDecl).getReceiverBaseType().getName().regexpMatch("[A-Z].*")
+  )
+}
+
+private predicate isLiveRoot(ControlFlow::Root r) { isLiveFunction(r) or not r instanceof FuncDef }
+
+private predicate isLiveType(Type tp) {
+  exists(CompositeLit cl |
+    cl.getType() = tp and
+    isLiveRoot(DataFlow::exprNode(cl).getRoot())
+  )
+  or
+  exists(Function f | f.getType() = tp)
+  or
+  exists(ArrayType at |
+    tp = at.getElementType() and
+    isLiveType(at)
+  )
+  or
+  exists(SliceType st |
+    tp = st.getElementType() and
+    isLiveType(st)
+  )
+  or
+  exists(ChanType ct | isLiveType(ct) | tp = ct.getElementType())
+  or
+  exists(Field f |
+    tp = f.getType() and
+    isLiveType(f.getDeclaringType())
+  )
+  or
+  isLiveType(tp.getUnderlyingType())
+  or
+  isLiveType(any(Type n | tp = n.getUnderlyingType()))
+  or
+  exists(DataFlow::AddressOperationNode addr |
+    tp = addr.getType() and
+    isLiveRoot(addr.getRoot())
+  )
+  or
+  exists(SelectorExpr sel | sel.getBase().getType() = tp.(PointerType).getBaseType() |
+    exists(Method m | sel = m.getAReference() | m.getReceiverType() instanceof PointerType)
+    or
+    // if we cannot resolve a reference, we make worst-case assumptions
+    not exists(sel.(Name).getTarget())
+  )
+  or
+  exists(DataFlow::CallNode c |
+    c = Builtin::make().getACall() or
+    c = Builtin::new().getACall()
+  |
+    tp = c.getType() and
+    isLiveRoot(c.getRoot())
+  )
+  or
+  exists(DataFlow::Node init |
+    init.asInstruction() = IR::implicitInitInstruction(_) and
+    tp = init.getType() and
+    isLiveRoot(init.getRoot())
+  )
+  or
+  tp.getName().regexpMatch("[A-Z].*")
+}
+
 /**
  * Gets a function that might be called by `call`.
  */
@@ -56,7 +151,8 @@ DataFlowCallable viableCallable(CallExpr ma) {
     if exists(getConcreteTarget(call))
     then result = getConcreteTarget(call)
     else result = call.getACallee()
-  )
+  ) and
+  isLiveFunction(result)
 }
 
 /**
