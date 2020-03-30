@@ -488,17 +488,22 @@ func extractExpr(tw *trap.Writer, expr ast.Expr, parent trap.Label, idx int) {
 		return
 	}
 
-	lbl := tw.Labeler.LocalID(expr)
-	extractTypeOf(tw, expr, lbl)
-
+	var lbl trap.Label
 	var kind int
 	switch expr := expr.(type) {
 	case *ast.BadExpr:
+		if expr == nil {
+			return
+		}
+		lbl = tw.Labeler.LocalID(expr)
+		extractTypeOf(tw, expr, lbl)
 		kind = dbscheme.BadExpr.Index()
 	case *ast.Ident:
 		if expr == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(expr)
+		extractTypeOf(tw, expr, lbl)
 		kind = dbscheme.IdentExpr.Index()
 		dbscheme.LiteralsTable.Emit(tw, lbl, expr.Name, expr.Name)
 		def := tw.Package.TypesInfo.Defs[expr]
@@ -531,12 +536,16 @@ func extractExpr(tw *trap.Writer, expr ast.Expr, parent trap.Label, idx int) {
 		if expr == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(expr)
+		extractTypeOf(tw, expr, lbl)
 		kind = dbscheme.EllipsisExpr.Index()
 		extractExpr(tw, expr.Elt, lbl, 0)
 	case *ast.BasicLit:
 		if expr == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(expr)
+		extractTypeOf(tw, expr, lbl)
 		value := ""
 		switch expr.Kind {
 		case token.INT:
@@ -563,6 +572,8 @@ func extractExpr(tw *trap.Writer, expr ast.Expr, parent trap.Label, idx int) {
 		if expr == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(expr)
+		extractTypeOf(tw, expr, lbl)
 		kind = dbscheme.FuncLitExpr.Index()
 		extractExpr(tw, expr.Type, lbl, 0)
 		extractStmt(tw, expr.Body, lbl, 1)
@@ -570,6 +581,8 @@ func extractExpr(tw *trap.Writer, expr ast.Expr, parent trap.Label, idx int) {
 		if expr == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(expr)
+		extractTypeOf(tw, expr, lbl)
 		kind = dbscheme.CompositeLitExpr.Index()
 		extractExpr(tw, expr.Type, lbl, 0)
 		extractExprs(tw, expr.Elts, lbl, 1, 1)
@@ -577,12 +590,16 @@ func extractExpr(tw *trap.Writer, expr ast.Expr, parent trap.Label, idx int) {
 		if expr == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(expr)
+		extractTypeOf(tw, expr, lbl)
 		kind = dbscheme.ParenExpr.Index()
 		extractExpr(tw, expr.X, lbl, 0)
 	case *ast.SelectorExpr:
 		if expr == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(expr)
+		extractTypeOf(tw, expr, lbl)
 		kind = dbscheme.SelectorExpr.Index()
 		extractExpr(tw, expr.X, lbl, 0)
 		extractExpr(tw, expr.Sel, lbl, 1)
@@ -590,6 +607,8 @@ func extractExpr(tw *trap.Writer, expr ast.Expr, parent trap.Label, idx int) {
 		if expr == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(expr)
+		extractTypeOf(tw, expr, lbl)
 		kind = dbscheme.IndexExpr.Index()
 		extractExpr(tw, expr.X, lbl, 0)
 		extractExpr(tw, expr.Index, lbl, 1)
@@ -597,6 +616,8 @@ func extractExpr(tw *trap.Writer, expr ast.Expr, parent trap.Label, idx int) {
 		if expr == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(expr)
+		extractTypeOf(tw, expr, lbl)
 		kind = dbscheme.SliceExpr.Index()
 		extractExpr(tw, expr.X, lbl, 0)
 		extractExpr(tw, expr.Low, lbl, 1)
@@ -606,6 +627,8 @@ func extractExpr(tw *trap.Writer, expr ast.Expr, parent trap.Label, idx int) {
 		if expr == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(expr)
+		extractTypeOf(tw, expr, lbl)
 		kind = dbscheme.TypeAssertExpr.Index()
 		extractExpr(tw, expr.X, lbl, 0)
 		extractExpr(tw, expr.Type, lbl, 1)
@@ -613,6 +636,8 @@ func extractExpr(tw *trap.Writer, expr ast.Expr, parent trap.Label, idx int) {
 		if expr == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(expr)
+		extractTypeOf(tw, expr, lbl)
 		kind = dbscheme.CallOrConversionExpr.Index()
 		extractExpr(tw, expr.Fun, lbl, 0)
 		extractExprs(tw, expr.Args, lbl, 1, 1)
@@ -620,12 +645,16 @@ func extractExpr(tw *trap.Writer, expr ast.Expr, parent trap.Label, idx int) {
 		if expr == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(expr)
+		extractTypeOf(tw, expr, lbl)
 		kind = dbscheme.StarExpr.Index()
 		extractExpr(tw, expr.X, lbl, 0)
 	case *ast.KeyValueExpr:
 		if expr == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(expr)
+		extractTypeOf(tw, expr, lbl)
 		kind = dbscheme.KeyValueExpr.Index()
 		extractExpr(tw, expr.Key, lbl, 0)
 		extractExpr(tw, expr.Value, lbl, 1)
@@ -633,6 +662,8 @@ func extractExpr(tw *trap.Writer, expr ast.Expr, parent trap.Label, idx int) {
 		if expr == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(expr)
+		extractTypeOf(tw, expr, lbl)
 		tp := dbscheme.UnaryExprs[expr.Op]
 		if tp == nil {
 			log.Fatalf("unsupported unary operator %s", expr.Op)
@@ -643,6 +674,8 @@ func extractExpr(tw *trap.Writer, expr ast.Expr, parent trap.Label, idx int) {
 		if expr == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(expr)
+		extractTypeOf(tw, expr, lbl)
 		tp := dbscheme.BinaryExprs[expr.Op]
 		if tp == nil {
 			log.Fatalf("unsupported binary operator %s", expr.Op)
@@ -654,6 +687,8 @@ func extractExpr(tw *trap.Writer, expr ast.Expr, parent trap.Label, idx int) {
 		if expr == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(expr)
+		extractTypeOf(tw, expr, lbl)
 		kind = dbscheme.ArrayTypeExpr.Index()
 		extractExpr(tw, expr.Len, lbl, 0)
 		extractExpr(tw, expr.Elt, lbl, 1)
@@ -661,12 +696,16 @@ func extractExpr(tw *trap.Writer, expr ast.Expr, parent trap.Label, idx int) {
 		if expr == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(expr)
+		extractTypeOf(tw, expr, lbl)
 		kind = dbscheme.StructTypeExpr.Index()
 		extractFields(tw, expr.Fields, lbl, 0, 1)
 	case *ast.FuncType:
 		if expr == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(expr)
+		extractTypeOf(tw, expr, lbl)
 		kind = dbscheme.FuncTypeExpr.Index()
 		extractFields(tw, expr.Params, lbl, 0, 1)
 		extractFields(tw, expr.Results, lbl, -1, -1)
@@ -675,12 +714,16 @@ func extractExpr(tw *trap.Writer, expr ast.Expr, parent trap.Label, idx int) {
 		if expr == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(expr)
+		extractTypeOf(tw, expr, lbl)
 		kind = dbscheme.InterfaceTypeExpr.Index()
 		extractFields(tw, expr.Methods, lbl, 0, 1)
 	case *ast.MapType:
 		if expr == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(expr)
+		extractTypeOf(tw, expr, lbl)
 		kind = dbscheme.MapTypeExpr.Index()
 		extractExpr(tw, expr.Key, lbl, 0)
 		extractExpr(tw, expr.Value, lbl, 1)
@@ -688,6 +731,8 @@ func extractExpr(tw *trap.Writer, expr ast.Expr, parent trap.Label, idx int) {
 		if expr == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(expr)
+		extractTypeOf(tw, expr, lbl)
 		tp := dbscheme.ChanTypeExprs[expr.Dir]
 		if tp == nil {
 			log.Fatalf("unsupported channel direction %v", expr.Dir)
@@ -793,23 +838,33 @@ func extractStmt(tw *trap.Writer, stmt ast.Stmt, parent trap.Label, idx int) {
 		return
 	}
 
-	lbl := tw.Labeler.LocalID(stmt)
+	var lbl trap.Label
 	var kind int
 	switch stmt := stmt.(type) {
 	case *ast.BadStmt:
+		if stmt == nil {
+			return
+		}
+		lbl = tw.Labeler.LocalID(stmt)
 		kind = dbscheme.BadStmtType.Index()
 	case *ast.DeclStmt:
 		if stmt == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(stmt)
 		kind = dbscheme.DeclStmtType.Index()
 		extractDecl(tw, stmt.Decl, lbl, 0)
 	case *ast.EmptyStmt:
+		if stmt == nil {
+			return
+		}
+		lbl = tw.Labeler.LocalID(stmt)
 		kind = dbscheme.EmptyStmtType.Index()
 	case *ast.LabeledStmt:
 		if stmt == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(stmt)
 		kind = dbscheme.LabeledStmtType.Index()
 		extractExpr(tw, stmt.Label, lbl, 0)
 		extractStmt(tw, stmt.Stmt, lbl, 1)
@@ -817,12 +872,14 @@ func extractStmt(tw *trap.Writer, stmt ast.Stmt, parent trap.Label, idx int) {
 		if stmt == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(stmt)
 		kind = dbscheme.ExprStmtType.Index()
 		extractExpr(tw, stmt.X, lbl, 0)
 	case *ast.SendStmt:
 		if stmt == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(stmt)
 		kind = dbscheme.SendStmtType.Index()
 		extractExpr(tw, stmt.Chan, lbl, 0)
 		extractExpr(tw, stmt.Value, lbl, 1)
@@ -830,6 +887,7 @@ func extractStmt(tw *trap.Writer, stmt ast.Stmt, parent trap.Label, idx int) {
 		if stmt == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(stmt)
 		if stmt.Tok == token.INC {
 			kind = dbscheme.IncStmtType.Index()
 		} else if stmt.Tok == token.DEC {
@@ -842,6 +900,7 @@ func extractStmt(tw *trap.Writer, stmt ast.Stmt, parent trap.Label, idx int) {
 		if stmt == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(stmt)
 		tp := dbscheme.AssignStmtTypes[stmt.Tok]
 		if tp == nil {
 			log.Fatalf("unsupported assignment statement with operator %v", stmt.Tok)
@@ -853,21 +912,28 @@ func extractStmt(tw *trap.Writer, stmt ast.Stmt, parent trap.Label, idx int) {
 		if stmt == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(stmt)
 		kind = dbscheme.GoStmtType.Index()
 		extractExpr(tw, stmt.Call, lbl, 0)
 	case *ast.DeferStmt:
 		if stmt == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(stmt)
 		kind = dbscheme.DeferStmtType.Index()
 		extractExpr(tw, stmt.Call, lbl, 0)
 	case *ast.ReturnStmt:
+		if stmt == nil {
+			return
+		}
+		lbl = tw.Labeler.LocalID(stmt)
 		kind = dbscheme.ReturnStmtType.Index()
 		extractExprs(tw, stmt.Results, lbl, 0, 1)
 	case *ast.BranchStmt:
 		if stmt == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(stmt)
 		switch stmt.Tok {
 		case token.BREAK:
 			kind = dbscheme.BreakStmtType.Index()
@@ -885,6 +951,7 @@ func extractStmt(tw *trap.Writer, stmt ast.Stmt, parent trap.Label, idx int) {
 		if stmt == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(stmt)
 		kind = dbscheme.BlockStmtType.Index()
 		extractStmts(tw, stmt.List, lbl, 0, 1)
 		emitScopeNodeInfo(tw, stmt, lbl)
@@ -892,6 +959,7 @@ func extractStmt(tw *trap.Writer, stmt ast.Stmt, parent trap.Label, idx int) {
 		if stmt == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(stmt)
 		kind = dbscheme.IfStmtType.Index()
 		extractStmt(tw, stmt.Init, lbl, 0)
 		extractExpr(tw, stmt.Cond, lbl, 1)
@@ -902,6 +970,7 @@ func extractStmt(tw *trap.Writer, stmt ast.Stmt, parent trap.Label, idx int) {
 		if stmt == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(stmt)
 		kind = dbscheme.CaseClauseType.Index()
 		extractExprs(tw, stmt.List, lbl, -1, -1)
 		extractStmts(tw, stmt.Body, lbl, 0, 1)
@@ -910,6 +979,7 @@ func extractStmt(tw *trap.Writer, stmt ast.Stmt, parent trap.Label, idx int) {
 		if stmt == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(stmt)
 		kind = dbscheme.ExprSwitchStmtType.Index()
 		extractStmt(tw, stmt.Init, lbl, 0)
 		extractExpr(tw, stmt.Tag, lbl, 1)
@@ -919,6 +989,7 @@ func extractStmt(tw *trap.Writer, stmt ast.Stmt, parent trap.Label, idx int) {
 		if stmt == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(stmt)
 		kind = dbscheme.TypeSwitchStmtType.Index()
 		extractStmt(tw, stmt.Init, lbl, 0)
 		extractStmt(tw, stmt.Assign, lbl, 1)
@@ -928,17 +999,23 @@ func extractStmt(tw *trap.Writer, stmt ast.Stmt, parent trap.Label, idx int) {
 		if stmt == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(stmt)
 		kind = dbscheme.CommClauseType.Index()
 		extractStmt(tw, stmt.Comm, lbl, 0)
 		extractStmts(tw, stmt.Body, lbl, 1, 1)
 		emitScopeNodeInfo(tw, stmt, lbl)
 	case *ast.SelectStmt:
+		if stmt == nil {
+			return
+		}
+		lbl = tw.Labeler.LocalID(stmt)
 		kind = dbscheme.SelectStmtType.Index()
 		extractStmt(tw, stmt.Body, lbl, 0)
 	case *ast.ForStmt:
 		if stmt == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(stmt)
 		kind = dbscheme.ForStmtType.Index()
 		extractStmt(tw, stmt.Init, lbl, 0)
 		extractExpr(tw, stmt.Cond, lbl, 1)
@@ -949,6 +1026,7 @@ func extractStmt(tw *trap.Writer, stmt ast.Stmt, parent trap.Label, idx int) {
 		if stmt == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(stmt)
 		kind = dbscheme.RangeStmtType.Index()
 		extractExpr(tw, stmt.Key, lbl, 0)
 		extractExpr(tw, stmt.Value, lbl, 1)
@@ -979,15 +1057,20 @@ func extractStmts(tw *trap.Writer, stmts []ast.Stmt, parent trap.Label, idx int,
 
 // extractDecl extracts AST information for the given declaration
 func extractDecl(tw *trap.Writer, decl ast.Decl, parent trap.Label, idx int) {
-	lbl := tw.Labeler.LocalID(decl)
+	var lbl trap.Label
 	var kind int
 	switch decl := decl.(type) {
 	case *ast.BadDecl:
+		if decl == nil {
+			return
+		}
+		lbl = tw.Labeler.LocalID(decl)
 		kind = dbscheme.BadDeclType.Index()
 	case *ast.GenDecl:
 		if decl == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(decl)
 		switch decl.Tok {
 		case token.IMPORT:
 			kind = dbscheme.ImportDeclType.Index()
@@ -1008,6 +1091,7 @@ func extractDecl(tw *trap.Writer, decl ast.Decl, parent trap.Label, idx int) {
 		if decl == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(decl)
 		kind = dbscheme.FuncDeclType.Index()
 		extractFields(tw, decl.Recv, lbl, -1, -1)
 		extractExpr(tw, decl.Name, lbl, 0)
@@ -1023,13 +1107,14 @@ func extractDecl(tw *trap.Writer, decl ast.Decl, parent trap.Label, idx int) {
 
 // extractSpec extracts AST information for the given declaration specifier
 func extractSpec(tw *trap.Writer, spec ast.Spec, parent trap.Label, idx int) {
-	lbl := tw.Labeler.LocalID(spec)
+	var lbl trap.Label
 	var kind int
 	switch spec := spec.(type) {
 	case *ast.ImportSpec:
 		if spec == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(spec)
 		kind = dbscheme.ImportSpecType.Index()
 		extractExpr(tw, spec.Name, lbl, 0)
 		extractExpr(tw, spec.Path, lbl, 1)
@@ -1038,6 +1123,7 @@ func extractSpec(tw *trap.Writer, spec ast.Spec, parent trap.Label, idx int) {
 		if spec == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(spec)
 		kind = dbscheme.ValueSpecType.Index()
 		for i, name := range spec.Names {
 			extractExpr(tw, name, lbl, -(1 + i))
@@ -1049,6 +1135,7 @@ func extractSpec(tw *trap.Writer, spec ast.Spec, parent trap.Label, idx int) {
 		if spec == nil {
 			return
 		}
+		lbl = tw.Labeler.LocalID(spec)
 		kind = dbscheme.TypeSpecType.Index()
 		extractExpr(tw, spec.Name, lbl, 0)
 		extractExpr(tw, spec.Type, lbl, 1)
