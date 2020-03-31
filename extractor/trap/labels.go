@@ -27,6 +27,7 @@ type Labeler struct {
 	nodeLabels   map[interface{}]Label  // labels associated with AST nodes
 	scopeLabels  map[*types.Scope]Label // labels associated with scopes
 	objectLabels map[types.Object]Label // labels associated with objects (that is, declared entities)
+	objects      []types.Object         // all objects for which labels have been assigned
 	TypeLabels   map[types.Type]Label   // labels associated with types
 	keyLabels    map[string]Label
 }
@@ -39,6 +40,7 @@ func newLabeler(tw *Writer) *Labeler {
 		make(map[interface{}]Label),
 		make(map[*types.Scope]Label),
 		make(map[types.Object]Label),
+		make([]types.Object, 0),
 		make(map[types.Type]Label),
 		make(map[string]Label),
 	}
@@ -118,6 +120,7 @@ func (l *Labeler) LookupObjectID(object types.Object, typelbl Label) (Label, boo
 			if object.Name() == "_" || object.Name() == "." {
 				label = l.FreshID()
 				l.objectLabels[object] = label
+				l.objects = append(l.objects, object)
 				return label, false
 			}
 			label = InvalidLabel
@@ -165,6 +168,7 @@ func (l *Labeler) ScopedObjectID(object types.Object, typelbl Label) (Label, boo
 			}
 		}
 		l.objectLabels[object] = label
+		l.objects = append(l.objects, object)
 	}
 	return label, exists
 }
@@ -178,6 +182,7 @@ func (l *Labeler) ReceiverObjectID(object types.Object, methlbl Label) (Label, b
 		// if we can't, construct a special label
 		label = l.GlobalID(fmt.Sprintf("{%v},%s;receiver", methlbl, object.Name()))
 		l.objectLabels[object] = label
+		l.objects = append(l.objects, object)
 	}
 	return label, exists
 }
@@ -198,6 +203,7 @@ func (l *Labeler) FieldID(field *types.Var, idx int, structlbl Label) (Label, bo
 		}
 		label = l.GlobalID(fmt.Sprintf("{%v},%s;field", structlbl, name))
 		l.objectLabels[field] = label
+		l.objects = append(l.objects, field)
 	}
 	return label, exists
 }
@@ -210,6 +216,7 @@ func (l *Labeler) MethodID(method types.Object, recvlbl Label) (Label, bool) {
 	if !exists {
 		label = l.GlobalID(fmt.Sprintf("{%v},%s;method", recvlbl, method.Name()))
 		l.objectLabels[method] = label
+		l.objects = append(l.objects, method)
 	}
 	return label, exists
 }

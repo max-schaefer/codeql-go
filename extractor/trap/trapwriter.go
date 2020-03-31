@@ -98,8 +98,8 @@ func (tw *Writer) Close() error {
 // the provided callback with a writer for the trap file, the object, and its
 // label.
 func (tw *Writer) ForEachObject(cb func(*Writer, types.Object, Label)) {
-	for object, lbl := range tw.Labeler.objectLabels {
-		cb(tw, object, lbl)
+	for _, object := range tw.Labeler.objects {
+		cb(tw, object, tw.Labeler.objectLabels[object])
 	}
 }
 
