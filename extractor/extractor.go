@@ -94,7 +94,7 @@ func ExtractWithFlags(buildFlags []string, patterns []string) error {
 		"CODEQL_EXTRACTOR_GO_MAX_GOROUTINES",
 		"SEMMLE_MAX_GOROUTINES",
 	)); err != nil {
-		maxgoroutines = 32
+		maxgoroutines = 1
 	} else {
 		log.Printf("Max goroutines set to %d", maxgoroutines)
 	}
