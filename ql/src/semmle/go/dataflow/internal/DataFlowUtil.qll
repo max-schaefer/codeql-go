@@ -992,16 +992,24 @@ abstract class BarrierGuard extends Node {
       guard.ensures(this, branch)
     )
     or
-    exists(
-      Function f, FunctionInput inp, FunctionOutput outp, DataFlow::Property p, CallNode c,
-      Node resNode, Node check, boolean outcome
-    |
-      guardingFunction(f, inp, outp, p) and
-      c = f.getACall() and
-      nd = inp.getNode(c) and
-      localFlow(outp.getNode(c), resNode) and
+    exists(Node outp, DataFlow::Property p, CallNode c, Node resNode, Node check, boolean outcome |
+      guardingFunctionCall(c, nd, outp, p) and
+      localFlow(outp, resNode) and
       p.checkOn(check, outcome, resNode) and
       guard.ensures(check, outcome)
+    )
+  }
+
+  /**
+   * Holds if whenever `p` holds of output `outp` of the function called by `c`, this node is known
+   * to validate the input `inp`.
+   */
+  private predicate guardingFunctionCall(CallNode c, Node inp, Node outp, DataFlow::Property p) {
+    exists(Function f, FunctionInput i, FunctionOutput o |
+      guardingFunction(f, i, o, p) and
+      c = f.getACall() and
+      inp = i.getNode(c) and
+      outp = o.getNode(c)
     )
   }
 
